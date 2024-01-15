@@ -1,6 +1,6 @@
 /***
 
-Name:			PV-Rechner
+Name:			Noten-Durchschnitt ermitteln
 Beschreibung:	Programm, in welchem mittlere kWh aus Solarstrahlung für verschiedene Standorte berechnet wird. Je nach Makro-Definition werden entweder Berechnungen
 				zu Mittelwerten ausgegeben, oder es findet eine Benutzerabfrage statt, wo der User Werte über seine PV-Anlage angeben und sich die berechneten
 				PV-Erträge in eine .txt-Datei abgespeichert werden.
@@ -20,9 +20,75 @@ Version:			1
 #include <time.h>
 
 
-int main(void) {
 
-	printf("Hello world");
+typedef struct {
+	char modulname[100];
+	char kurzform[100];
+	float faktor;
+	float note;
+} tModul;
+
+
+
+int main(void) {
+	tModul modul;
+	int anzahlModule = 0;
+	//int* moduleGesamt = NULL;
+	//moduleGesamt = (int*)malloc(moduleAnzahl * sizeof(int));
+
+
+	//während einlesen von csv mitzählen wieviele module eingelesen wurden und moduleAnzahl darauf setzen
+
+	
+		//modul anlegen
+		strcpy(modul.modulname, "Mathematik");
+		strcpy(modul.kurzform, "BEK");
+		modul.faktor = 3.0;
+		modul.note = 0.0;
+
+
+		//modul in module gesamt pushen
+
+	
+
+	printf("module %s", modul.modulname);
+
+	
+
+	//abfrage welcher teil des programms ausgeführt werden soll (speichern, einlsesn, abrufen, korrigieren...)
+	//Funktionen freischalten? Abrufen < Einlesen?
+
+
+	//Funktion: CSV auslesen und in array speichern malloc
+
+	//Funktion: Nutzereingabe in eigene CSV zurückschreiben
+
+	//Funktion:Abschluss note aus gegebenen Werten berechnen
+
+	//Funktion: Noten für alle verfügbaren Fächer abfragen, auf Gültigkeit (0-15 prüfen)
+	//Summe aller Punkte
+	//Leistungspunkte, drei Nachkommastellen
+
+	//Funktion: mega printf csv 1 zu 1 auf konsole ausgeben
+
+	//open CSV
+	printf("\n");
+	char buffer[1000];
+	FILE* moduleCSV = fopen("module.csv", "r");
+	if (moduleCSV == NULL) {
+		printf("Fehler: Datei nicht gefunden");
+		return 1;
+	}
+	printf("Erfolg: Datei gefunden");
+	printf("\n");
+	//einlesen
+	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+		printf("%s\n", buffer);
+	};
+	
+
+
+
 
 
 
@@ -60,5 +126,8 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	// Rückgabe der eingelesenen Zahl 
 	return eingelesenerWert;
 }
+
+
+
 
 
