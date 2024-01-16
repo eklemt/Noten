@@ -62,7 +62,7 @@ int main(void) {
 
 	
 
-	
+	printf("ich war da"); 
 
 	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
