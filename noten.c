@@ -20,12 +20,11 @@ Version:			1
 #include <time.h>
 
 
-
 typedef struct {
 	char modulname;
 	char kurzform;
-	float faktor;
-	float note;
+	char faktor;
+	char note;
 } tModul;
 
 int printModuleCSV();
@@ -40,6 +39,7 @@ int main(void) {
 
 	char buffer[1000]; 
 	char* data; 
+	int anzahlModule = 0; 
 
 	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
@@ -49,7 +49,7 @@ int main(void) {
 	}
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
-
+	   
 	fgets(buffer, sizeof(buffer), moduleCSV); 
 	printf("%s\n", buffer); 
 
@@ -67,11 +67,76 @@ int main(void) {
 		printf("%s,", data);
 
 		printf("\n"); 
+		anzahlModule++; 
 	}
 
-	printf("===================================================="); 
+	tModul *w = (tModul*)malloc(36 * sizeof(tModul)); 
+
+	fgets(buffer, sizeof(buffer), moduleCSV);
+
+	for (int i = 1; i <= anzahlModule; i++) {
+		data = strtok(buffer, ";");
+		w[i].modulname = data;
+
+		data = strtok(NULL, ";");
+		w[i].kurzform = data;
+
+		data = strtok(NULL, ";");
+		w[i].faktor = data;
+
+		data = strtok(NULL, ";");
+		w[i].note = data;
+
+		printf("\n");
+	}
+
+	fclose(moduleCSV);
+
+	printf("%s", w[22].modulname); 
+
+	/*
+	// Ab hier Speicher allokieren 
+
+	tModul* Array; // Zeiger für dynamischen Speicher 
+	int size;
+
+	size = anzahlModule * (sizeof(tModul));
+
+	Array = (tModul*)calloc(anzahlModule, size);
+
+
+	FILE* moduleCSV = fopen("module.csv", "r");
+	if (moduleCSV == NULL) {// Fehler?
+		printf("Fehler: Datei nicht gefunden");
+		return 1;
+	}
+	printf("Erfolg: Datei gefunden");
+	printf("\n");
+
+
+
+	for (int i = 1; i <= anzahlModule; i++) {
+		data = strtok(buffer, ";");
+		Array[i].modulname = data; 
+
+		data = strtok(NULL, ";");
+		Array[i].kurzform = data;
+
+		data = strtok(NULL, ";");
+		Array[i].faktor = data;
+
+		data = strtok(NULL, ";");
+		Array[i].note = data;
+
+		printf("\n");
+	}
 
 	fclose(moduleCSV); 
+	
+	*/
+
+
+
 	
 
 	/**DATEI**/
