@@ -32,41 +32,17 @@ int printModuleCSV();
 
 int main(void) {
 
-	//int* moduleGesamt = NULL;
-	//moduleGesamt = (int*)malloc(moduleAnzahl * sizeof(int));
-
-
-	//während einlesen von csv mitzählen wieviele module eingelesen wurden und moduleAnzahl darauf setzen
-
-	//modul in module gesamt pushen
-
-	//abfrage welcher teil des programms ausgeführt werden soll (speichern, einlsesn, abrufen, korrigieren...)
-	//Funktionen freischalten? Abrufen < Einlesen?
-
-
-	//Funktion: CSV auslesen und in array speichern malloc
-
-	//Funktion: Nutzereingabe in eigene CSV zurückschreiben
-
-	//Funktion:Abschluss note aus gegebenen Werten berechnen
-
-	//Funktion: Noten für alle verfügbaren Fächer abfragen, auf Gültigkeit (0-15 prüfen)
-	//Summe aller Punkte
-	//Leistungspunkte, drei Nachkommastellen
-
-	//Funktion: mega printf csv 1 zu 1 auf konsole ausgeben
+ 
 
 	//open CSV
 	printf("\n");
 	tModul moduleGesamt[100]; //array in dem alle module aus CSV eingelesen gespeichert werden sollen
 
-	
-
-	printf("ich war da"); 
+	char buffer[1000]; 
+	char* data; 
 
 	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
-
 	if (moduleCSV == NULL) {// Fehler?
 		printf("Fehler: Datei nicht gefunden");
 		return 1;
@@ -74,30 +50,29 @@ int main(void) {
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
 
-	//Größe der CSV-Datei, bzw Anzahl der darin gespeicherten Module herausfinden
-	int lesen = 0;
-	int index = 0;
-	while (!feof(moduleCSV)) {
-		lesen = fscanf(moduleCSV, "%c", &moduleGesamt[index].modulname);
+	fgets(buffer, sizeof(buffer), moduleCSV); 
+	printf("%s\n", buffer); 
 
-		if (lesen == 1) index++;
-		if (lesen != 1 && !feof(moduleCSV)) { 
-			printf("Fehler: Formatierung in CSV fehlerhaft"); 
-			return 1;
-		}
-	};
+	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+		data = strtok(buffer, ";");
+		printf("%s,", data);
 
-	fclose(moduleCSV);
+		data = strtok(NULL, ";");
+		printf("%s, ", data);
 
-	printf("Anzahl einträge: %d\n", index);
+		data = strtok(NULL, ";");
+		printf("%s,", data);
 
-	for (int i = 0; i < index; i++) {
-		printf("%c\n", moduleGesamt[index].modulname);
+		data = strtok(NULL, ";");
+		printf("%s,", data);
 
+		printf("\n"); 
 	}
 
+	printf("===================================================="); 
 
-
+	fclose(moduleCSV); 
+	
 
 	/**DATEI**/
 	//moduleGesamt = (tModul*)malloc(numberOfModules * sizeof(tModul)); // Speicher allokieren für module, die gleich kommen. Anzahl der Module ist jetzt bekannt
@@ -131,7 +106,7 @@ int main(void) {
 
 
 
-
+	return 0; 
 }
 
 
@@ -168,30 +143,6 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 }
 
 
-int printModuleCSV() {
-	//open CSV
-	printf("\n");
-	char buffer[1000];
-	int numberOfModules = 0;
-
-	FILE* moduleCSV = fopen("module.csv", "r");
-	if (moduleCSV == NULL) {
-		printf("Fehler: Datei nicht gefunden");
-		return 1;
-	}
-	printf("Erfolg: Datei gefunden");
-	printf("\n");
-	//einlesen
-	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
-		printf("%s\n", buffer);
-		numberOfModules++;
-	};
-
-
-
-
-	return 0;
-}
 
 
 
