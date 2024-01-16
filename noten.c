@@ -22,38 +22,23 @@ Version:			1
 
 
 typedef struct {
-	char modulname[100];
-	char kurzform[100];
+	char *modulname;
+	char *kurzform;
 	float faktor;
 	float note;
 } tModul;
 
-
+int printModuleCSV();
 
 int main(void) {
-	tModul modul;
-	int anzahlModule = 0;
+
 	//int* moduleGesamt = NULL;
 	//moduleGesamt = (int*)malloc(moduleAnzahl * sizeof(int));
 
 
 	//während einlesen von csv mitzählen wieviele module eingelesen wurden und moduleAnzahl darauf setzen
 
-	
-		//modul anlegen
-		strcpy(modul.modulname, "Mathematik");
-		strcpy(modul.kurzform, "BEK");
-		modul.faktor = 3.0;
-		modul.note = 0.0;
-
-
-		//modul in module gesamt pushen
-
-	
-
-	printf("module %s", modul.modulname);
-
-	
+	//modul in module gesamt pushen
 
 	//abfrage welcher teil des programms ausgeführt werden soll (speichern, einlsesn, abrufen, korrigieren...)
 	//Funktionen freischalten? Abrufen < Einlesen?
@@ -74,17 +59,59 @@ int main(void) {
 	//open CSV
 	printf("\n");
 	char buffer[1000];
+	int numberOfModules = 0;
+	tModul* moduleGesamt; //array in dem alle module aus CSV eingelesen gespeichert werden sollen
+
+	
+
+	
+
+	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
-	if (moduleCSV == NULL) {
+
+	if (moduleCSV == NULL) {// Fehler?
 		printf("Fehler: Datei nicht gefunden");
 		return 1;
 	}
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
-	//einlesen
+
+	//Größe der CSV-Datei, bzw Anzahl der darin gespeicherten Module herausfinden
 	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
 		printf("%s\n", buffer);
+		numberOfModules++;
 	};
+
+
+	/**DATEI**/
+	moduleGesamt = (tModul*)malloc(numberOfModules * sizeof(tModul)); // Speicher allokieren für module, die gleich kommen. Anzahl der Module ist jetzt bekannt
+	if (moduleGesamt == NULL) { // Fehler?
+		printf("Fehler: Speicher konnte nicht allokiert werden");
+		return 1;
+	}
+
+	for (int i = 0; i < numberOfModules; i++) {
+		moduleGesamt[i].modulname = (char*)malloc(100);
+		moduleGesamt[i].kurzform = (char*)malloc(100);
+		moduleGesamt[i].faktor = 0;
+		moduleGesamt[i].note = 0;
+
+		moduleGesamt[i].modulname = (char*)malloc(100);
+		moduleGesamt[i].kurzform = (char*)malloc(100);
+		moduleGesamt[i].faktor = 0;
+		moduleGesamt[i].note = 0;
+
+		
+	}
+
+	// Free allocated memory for each module
+	for (int i = 0; i < numberOfModules; i++) {
+		free(moduleGesamt[i].modulname);
+		free(moduleGesamt[i].kurzform);
+	}
+
+	// Free memory for the array of tModul elements
+	free(moduleGesamt);
 	
 
 
@@ -125,6 +152,32 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 
 	// Rückgabe der eingelesenen Zahl 
 	return eingelesenerWert;
+}
+
+
+int printModuleCSV() {
+	//open CSV
+	printf("\n");
+	char buffer[1000];
+	int numberOfModules = 0;
+
+	FILE* moduleCSV = fopen("module.csv", "r");
+	if (moduleCSV == NULL) {
+		printf("Fehler: Datei nicht gefunden");
+		return 1;
+	}
+	printf("Erfolg: Datei gefunden");
+	printf("\n");
+	//einlesen
+	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+		printf("%s\n", buffer);
+		numberOfModules++;
+	};
+
+
+
+
+	return 0;
 }
 
 
