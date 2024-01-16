@@ -78,8 +78,12 @@ int main(void) {
 	}
 
 	fclose(moduleCSV);
-	free(anzahlModule);
-	return 0;
+	
+
+		free(anzahlModule);
+
+
+		return 0;
 }
 
 

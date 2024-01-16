@@ -77,11 +77,130 @@ int main(void) {
 		++i; 
 	}
 
-	fclose(moduleCSV);
-	free(anzahlModule);
-	return 0;
+
+
+	
+
+
+		/*
+		}
+
+		fgets(buffer, sizeof(buffer), moduleCSV);
+
+		for (int i = 1; i <= anzahlModule; i++) {
+			data = strtok(buffer, ";");
+			w[i].modulname = data;
+
+			data = strtok(NULL, ";");
+			w[i].kurzform = data;
+
+			data = strtok(NULL, ";");
+			w[i].faktor = data;
+
+			data = strtok(NULL, ";");
+			w[i].note = data;
+
+			printf("\n");
+
+		while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+		data = strtok(buffer, ";");
+		printf("%s,", data);
+
+
+		data = strtok(NULL, ";");
+		printf("%s, ", data);
+
+		data = strtok(NULL, ";");
+		printf("%s,", data);
+
+		data = strtok(NULL, ";");
+		printf("%s,", data);
+
+		printf("\n");
+		anzahlModule++;
+	}
+		}
+		*/
+
+		fclose(moduleCSV);
+	
+
+		free(anzahlModule);
+
+
+		return 0;
 }
 
+	/*
+	// Ab hier Speicher allokieren 
+
+	tModul* Array; // Zeiger für dynamischen Speicher 
+	int size;
+
+	size = anzahlModule * (sizeof(tModul));
+
+	Array = (tModul*)calloc(anzahlModule, size);
+
+
+	FILE* moduleCSV = fopen("module.csv", "r");
+	if (moduleCSV == NULL) {// Fehler?
+		printf("Fehler: Datei nicht gefunden");
+		return 1;
+	}
+	printf("Erfolg: Datei gefunden");
+	printf("\n");
+
+
+
+	for (int i = 1; i <= anzahlModule; i++) {
+		data = strtok(buffer, ";");
+		Array[i].modulname = data; 
+
+		data = strtok(NULL, ";");
+		Array[i].kurzform = data;
+
+		data = strtok(NULL, ";");
+		Array[i].faktor = data;
+
+		data = strtok(NULL, ";");
+		Array[i].note = data;
+
+		printf("\n");
+	}
+
+	fclose(moduleCSV); 
+	
+	*/
+
+
+
+	
+
+	/**DATEI**/
+	//moduleGesamt = (tModul*)malloc(numberOfModules * sizeof(tModul)); // Speicher allokieren für module, die gleich kommen. Anzahl der Module ist jetzt bekannt
+	/*
+	if (moduleGesamt == NULL) { // Fehler?
+		printf("Fehler: Speicher konnte nicht allokiert werden");
+		return 1;
+	}
+	/*
+	for (int i = 0; i < numberOfModules; i++) {
+		moduleGesamt[i].modulname = (char*)malloc(100);
+		moduleGesamt[i].kurzform = (char*)malloc(100);
+		moduleGesamt[i].faktor = 0;
+		moduleGesamt[i].note = 0;
+
+		moduleGesamt[i].modulname = (char*)malloc(100);
+		moduleGesamt[i].kurzform = (char*)malloc(100);
+		moduleGesamt[i].faktor = 0;
+		moduleGesamt[i].note = 0;
+
+		
+	}*/
+
+	
+
+	// Free memory for the array of tModul elements
 
 
 
