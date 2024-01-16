@@ -22,8 +22,8 @@ Version:			1
 
 
 typedef struct {
-	char *modulname;
-	char *kurzform;
+	char modulname;
+	char kurzform;
 	float faktor;
 	float note;
 } tModul;
@@ -58,9 +58,7 @@ int main(void) {
 
 	//open CSV
 	printf("\n");
-	char buffer[1000];
-	int numberOfModules = 0;
-	tModul* moduleGesamt; //array in dem alle module aus CSV eingelesen gespeichert werden sollen
+	tModul moduleGesamt[100]; //array in dem alle module aus CSV eingelesen gespeichert werden sollen
 
 	
 
@@ -77,19 +75,38 @@ int main(void) {
 	printf("\n");
 
 	//Größe der CSV-Datei, bzw Anzahl der darin gespeicherten Module herausfinden
-	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
-		printf("%s\n", buffer);
-		numberOfModules++;
+	int lesen = 0;
+	int index = 0;
+	while (!feof(moduleCSV)) {
+		lesen = fscanf(moduleCSV, "%c", &moduleGesamt[index].modulname);
+
+		if (lesen == 1) index++;
+		if (lesen != 1 && !feof(moduleCSV)) { 
+			printf("Fehler: Formatierung in CSV fehlerhaft"); 
+			return 1;
+		}
 	};
+
+	fclose(moduleCSV);
+
+	printf("Anzahl einträge: %d\n", index);
+
+	for (int i = 0; i < index; i++) {
+		printf("%c\n", moduleGesamt[index].modulname);
+
+	}
+
+
 
 
 	/**DATEI**/
-	moduleGesamt = (tModul*)malloc(numberOfModules * sizeof(tModul)); // Speicher allokieren für module, die gleich kommen. Anzahl der Module ist jetzt bekannt
+	//moduleGesamt = (tModul*)malloc(numberOfModules * sizeof(tModul)); // Speicher allokieren für module, die gleich kommen. Anzahl der Module ist jetzt bekannt
+	/*
 	if (moduleGesamt == NULL) { // Fehler?
 		printf("Fehler: Speicher konnte nicht allokiert werden");
 		return 1;
 	}
-
+	/*
 	for (int i = 0; i < numberOfModules; i++) {
 		moduleGesamt[i].modulname = (char*)malloc(100);
 		moduleGesamt[i].kurzform = (char*)malloc(100);
@@ -102,13 +119,9 @@ int main(void) {
 		moduleGesamt[i].note = 0;
 
 		
-	}
+	}*/
 
-	// Free allocated memory for each module
-	for (int i = 0; i < numberOfModules; i++) {
-		free(moduleGesamt[i].modulname);
-		free(moduleGesamt[i].kurzform);
-	}
+	
 
 	// Free memory for the array of tModul elements
 	free(moduleGesamt);
