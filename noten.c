@@ -20,9 +20,9 @@ Version:			1
 #include <time.h>
 
 
-typedef struct {
-	char modulname[100][100];
-	char kurzform[100][100];
+typedef struct REEModule{
+	char modulname[100];
+	char kurzform[100];
 	int faktor;
 	int note;
 } tModul;
@@ -45,40 +45,49 @@ int main(void) {
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
 
-	tModul* a = (tModul*)calloc(36, sizeof(tModul));
-	if (a == NULL) {// Fehler?
-		printf("Fehler: Zeiger zeigt auf nichts");
+	// Speicher reservieren
+	tModul modul[36]; // Zeiger für reservierten Speicher 
+
+	/*
+	Array = (tModul*)malloc(36 * sizeof(tModul));
+	if (Array == NULL) {// Fehler?
+		printf("Nicht genug Speicher vorhanden");
 		return 1;
 	}
-	a->faktor = 15;
+	*/
+	int numElements = 36; 
+	struct REEModule* array = (struct REEModule*)malloc(numElements * sizeof(struct REEModule); 
+
+
 	   
 	fgets(buffer, sizeof(buffer), moduleCSV); 
 	printf("%s\n", buffer); 
 
+	// Ausgabe der csv-Datei und abspeichwern in reservieertem SPeicher
 	int i = 0;
 	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
 		data = strtok(buffer, ";");
 		printf("%s,", data);
-		strcpy(a[i].modulname, data);
+		strcpy(modul[i].modulname, data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		strcpy(a[i].kurzform, data);
+		strcpy(modul[i].kurzform, data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		a[i].faktor = atoi(data);
+		modul[i].faktor = atoi(data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		a[i].note = atoi(data);
+		modul[i].note = atoi(data);
 
 		printf("\n");
-		++i; 
+		i++; 
 	}
 
 	fclose(moduleCSV);
-	free(anzahlModule);
+	//free(anzahlModule);
 	return 0;
 }
 
