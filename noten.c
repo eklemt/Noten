@@ -22,8 +22,8 @@ Version:			1
 typedef struct REEModule{
 	char* modulname;
 	char* kurzform;
-	int faktor;
-	int note;
+	float faktor;
+	float note;
 } tModul;
 
 short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
@@ -31,6 +31,10 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	short min,
 	short max); 
 
+void ausgabeAllerModule(tModul* moduleGesamt, int anzahlModule); 
+void einlesenDerNote(tModul* moduleGesamt, int anzahlModule);
+int durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, float durchschnitt); 
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, float durchschnitt); 
 
 int main(void) {
 	//open CSV
@@ -61,7 +65,10 @@ int main(void) {
 
 		// Speicher für chat-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
+		moduleGesamt[i].modulname = "text"; 
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
+		moduleGesamt[i].kurzform = "text";
+
 
 		modulBackUp = moduleGesamt; 
 		moduleGesamt = (tModul*)realloc(moduleGesamt, ++anzahlModule * sizeof(tModul));
@@ -76,101 +83,56 @@ int main(void) {
 		data = strtok(NULL, ";");
 		strcpy(moduleGesamt[i].kurzform, data);
 
+	
 		data = strtok(NULL, ";");
-		moduleGesamt[i].faktor = atoi(data);
+		moduleGesamt[i].faktor = atof(data);
 
 		data = strtok(NULL, ";");
-		moduleGesamt[i].note = atoi(data);
+		moduleGesamt[i].note = atof(data);
 
 		i++; 
 	}
 
-	fclose(moduleCSV);
-
-	anzahlModule = anzahlModule - 1; 
+	fclose(moduleCSV); 
+	anzahlModule = anzahlModule - 1;
 
 	int aktuellerProgrammteil = 0; 
 
-	printf("Hallo. Hier kannst du deine Noten für alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
-	aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4);
+	bool ersterDurchlauf = true; 
+	bool programmLaeuft = true; 
+	while (programmLaeuft) {
+		float durchschnitt = 0;
 
+		if (ersterDurchlauf) {
+			printf("Hallo. Hier kannst du deine Noten für alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
+			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4);
+		}
+		else{
+			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du als Nächstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4); 
+		}
 
+		if (aktuellerProgrammteil == 1) einlesenDerNote(moduleGesamt, anzahlModule);
+		else if (aktuellerProgrammteil == 2) {
+			durchschnitt = durchSchnittBerechnen(moduleGesamt, anzahlModule, durchschnitt);
+		}
+		else if (aktuellerProgrammteil == 3) ausgabeAllerModule(moduleGesamt, anzahlModule);
 
-	// Ausgabe aller Module 
+		else if (aktuellerProgrammteil == 4) ErgebnisseSpeichern(moduleGesamt, anzahlModule, durchschnitt);
 
-	printf("\n");
-	printf("Ausgabe gespeicherte Module:\n");
-
-	for (int u = 0; u < anzahlModule; u++) {
-		printf("%s, %s %d %d", moduleGesamt[u].modulname, moduleGesamt[u].kurzform, moduleGesamt[u].faktor, moduleGesamt[u].note); 
-		printf("\n");
-
+		//Beenden des Spiels 
+		printf("Wenn du weitere Einträge machen willst, drücke enter. Wenn nicht, dann drücke 'x' und enter."); 
+		if (getchar() == 'x') {
+			programmLaeuft = false;
+			printf("Danke, dass du das Programm genutzt hast.");
+			return 0;
+		}
+		else {
+			system("cls");
+		}
 	}
-
-	printf("\n");
-	// Einlesen aller Noten
-
-	for (int j = 0; j < anzahlModule; j++) {
-		printf("%s\t", moduleGesamt[j].modulname);
-
-
-		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15); 
-
-
-		moduleGesamt[j].note = aktuelleNote; 
-
-		printf("\n");
-	}
-	// Durchschnitt ausrechnen und Ausgabe des DUrchsnitts 
-	int summeallerNoten = 0; 
-	int durchschnitt = 0; 
-	int gewichtungsfaktorsumme = 0; 
-
-	for (int k = 0; k < anzahlModule; k++) {
-		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor; 
-		gewichtungsfaktorsumme += moduleGesamt[k].faktor; 
-
-	}
-	durchschnitt = summeallerNoten / gewichtungsfaktorsumme; 
-	printf("Dein Durchschnitt ist: %d\n", durchschnitt); 
-
-	if (durchschnitt == 15 || i == 14 || i == 13) {
-		printf("Dein Durchschnitt ist %d, in Worten: sehr gut\n", durchschnitt); 
-	}
-	else if (i == 12 || i == 11 || i == 10) {
-		printf("Dein Durchschnitt ist %d, in Worten: gut\n", durchschnitt);
-	}
-	else if (i == 9 || i == 8 || i == 7) {
-		printf("Dein Durchschnitt ist %d, in Worten: befriedigend\n", durchschnitt);
-	}
-	else if (i == 6 ) {
-		printf("Dein Durchschnitt ist %d, in Worten: ausreichend\n", durchschnitt);
-	}
-	else {
-		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch\n"); 
-	}
-
-	FILE* fp = fopen("noten.csv", "w");
-	if (fp == NULL) {
-		printf("Das klappt nicht"); 
-		return -1; 
-	}
-
-	for (int l = 0; l < anzahlModule; l++) {
-		fprintf(fp, "%s;", moduleGesamt[l].modulname); 
-		fprintf(fp, "%s;", moduleGesamt[l].kurzform);
-		fprintf(fp, "%d;", moduleGesamt[l].faktor);
-		fprintf(fp, "%d;\n", moduleGesamt[l].note);
-		
-	}
-	fclose(fp);
-
-
 	free(moduleGesamt); 
 	return 0;
 }
-
-
 
 
 
@@ -207,6 +169,80 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 }
 
 
+// Ausgabe aller Module 
+void ausgabeAllerModule (tModul* moduleGesamt, int anzahlModule){
+printf("\n");
+printf("Ausgabe gespeicherte Module:\n");
+
+	for (int u = 0; u < anzahlModule; u++) {
+		printf("%s, %s %.2f %.2f", moduleGesamt[u].modulname, moduleGesamt[u].kurzform, moduleGesamt[u].faktor, moduleGesamt[u].note);
+		printf("\n");
+	}
+}
+
+// Einlesen aller Noten
+void einlesenDerNote(tModul* moduleGesamt, int anzahlModule) {
+	for (int j = 0; j < anzahlModule; j++) {
+		printf("%s\t", moduleGesamt[j].modulname);
+
+
+		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15);
+
+
+		moduleGesamt[j].note = aktuelleNote;
+
+		printf("\n");
+	}
+}
+
+int durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, float durchschnitt) {
+	float summeallerNoten = 0;
+	float gewichtungsfaktorsumme = 0;
+
+	for (int k = 0; k < anzahlModule; k++) {
+		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor;
+		gewichtungsfaktorsumme += moduleGesamt[k].faktor;
+
+	}
+	durchschnitt = summeallerNoten / gewichtungsfaktorsumme;
+	printf("Dein Durchschnitt ist: %.2f\n", durchschnitt);
+
+	if (durchschnitt > 12.5 ) {
+		printf("Dein Durchschnitt ist %.2f, in Worten: sehr gut\n", durchschnitt);
+	}
+	else if (durchschnitt < 12.5 && durchschnitt >= 9.5) {
+		printf("Dein Durchschnitt ist %.2f, in Worten: gut\n", durchschnitt);
+	}
+	else if (durchschnitt < 9.5 && durchschnitt >= 6.5) {
+		printf("Dein Durchschnitt ist %.2f, in Worten: befriedigend\n", durchschnitt);
+	}
+	else if (durchschnitt < 6.5 && durchschnitt >= 6.0) {
+		printf("Dein Durchschnitt ist %.2f, in Worten: ausreichend\n", durchschnitt);
+	}
+	else {
+		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch\n");
+	}
+	return durchschnitt; 
+}
+
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, float durchschnitt) {
+	FILE* fp = fopen("noten.csv", "w");
+	if (fp == NULL) {
+		printf("Das klappt nicht");
+		return -1; 
+	}
+
+	for (int l = 0; l < anzahlModule; l++) {
+		fprintf(fp, "%s;", moduleGesamt[l].modulname);
+		fprintf(fp, "%s;", moduleGesamt[l].kurzform);
+		fprintf(fp, "%.2f;", moduleGesamt[l].faktor);
+		fprintf(fp, "%.2f;\n", moduleGesamt[l].note);
+
+	}
+	fprintf(fp, "Dein Notendurchschnitt: %2.f", durchschnitt); 
+	fclose(fp);
+	return 0;
+}
 
 
 
