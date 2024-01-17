@@ -21,20 +21,26 @@ Version:			1
 
 
 typedef struct REEModule{
-	char modulname[100];
-	char kurzform[100];
+	char* modulname;
+	char* kurzform;
 	int faktor;
 	int note;
 } tModul;
 
+short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
+	char text[],
+	short min,
+	short max); 
+
 
 int main(void) {
+
 	//open CSV
 	printf("\n");
 
 	char buffer[1000]; 
 	char* data; 
-	int anzahlModule = 0; 
+	int anzahlModule = 36; 
 
 	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
@@ -46,55 +52,71 @@ int main(void) {
 	printf("\n");
 
 	// Speicher reservieren
-	tModul modul[36]; // Zeiger für reservierten Speicher 
+	//tModul modul[36]; // Zeiger für reservierten Speicher 
 
-	/*
-	Array = (tModul*)malloc(36 * sizeof(tModul));
-	if (Array == NULL) {// Fehler?
-		printf("Nicht genug Speicher vorhanden");
-		return 1;
-	}
-	*/
-	int numElements = 36; 
-	struct REEModule* array = (struct REEModule*)malloc(numElements * sizeof(struct REEModule); 
-
-
-	   
+	tModul* moduleGesamt = (tModul*)malloc(anzahlModule * sizeof(tModul));
+  
 	fgets(buffer, sizeof(buffer), moduleCSV); 
 	printf("%s\n", buffer); 
 
 	// Ausgabe der csv-Datei und abspeichwern in reservieertem SPeicher
 	int i = 0;
 	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+
+		// Speicher für chat-Werte von struct allokieren
+		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
+		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
+
 		data = strtok(buffer, ";");
 		printf("%s,", data);
-		strcpy(modul[i].modulname, data);
+		strcpy(moduleGesamt[i].modulname, data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		strcpy(modul[i].kurzform, data);
+		strcpy(moduleGesamt[i].kurzform, data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		modul[i].faktor = atoi(data);
+		moduleGesamt[i].faktor = atoi(data);
 
 		data = strtok(NULL, ";");
 		printf("%s,", data);
-		modul[i].note = atoi(data);
+		moduleGesamt[i].note = atoi(data);
 
 		printf("\n");
 		i++; 
 	}
 
 	fclose(moduleCSV);
-	//free(anzahlModule);
+
+	// Ausgabe aller Module 
+
+	printf("\n");
+	printf("Ausgabe gespeicherte Module:\n");
+
+	for (int i = 0; i < anzahlModule; i++) {
+		printf("%s, %s %i %i", moduleGesamt[i].modulname, moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note); 
+		printf("\n");
+	}
+
+	// Einlesen aller Noten
+
+	int aktuelleNote; 
+	for (int i = 0; i < anzahlModule; i++) {
+		printf("%s", moduleGesamt[i].modulname);
+		aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 0, 15); 
+		moduleGesamt[i].note = aktuelleNote; 
+		printf("\n");
+	}
+
+	free(moduleGesamt); 
 	return 0;
 }
 
 
 
 
-/*
+
 short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	char text[],
 	short min,
@@ -126,7 +148,7 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	// Rückgabe der eingelesenen Zahl 
 	return eingelesenerWert;
 }
-*/
+
 
 
 
