@@ -5,8 +5,8 @@ Beschreibung:	Programm, in welchem mittlere kWh aus Solarstrahlung für verschied
 				zu Mittelwerten ausgegeben, oder es findet eine Benutzerabfrage statt, wo der User Werte über seine PV-Anlage angeben und sich die berechneten
 				PV-Erträge in eine .txt-Datei abgespeichert werden.
 Autorinnen:	    Emily Klemt, Carolin Altstaedt
-Datum:		    22.12.2023
-Version:			1
+Datum:		    17.01.2024
+Version:		1
 
 ***/
 
@@ -22,8 +22,8 @@ Version:			1
 typedef struct REEModule{
 	char* modulname;
 	char* kurzform;
-	float faktor;
-	float note;
+	double faktor;
+	double note;
 } tModul;
 
 short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
@@ -33,13 +33,13 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 
 void ausgabeAllerModule(tModul* moduleGesamt, int anzahlModule); 
 void einlesenDerNote(tModul* moduleGesamt, int anzahlModule);
-int durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, float durchschnitt); 
-int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, float durchschnitt); 
+double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
 
 int main(void) {
 	//open CSV
 
-	char buffer[1000]; 
+	char buffer[1000];
 	char* data; 
 	int anzahlModule = 1; 
 
@@ -101,7 +101,7 @@ int main(void) {
 	bool ersterDurchlauf = true; 
 	bool programmLaeuft = true; 
 	while (programmLaeuft) {
-		float durchschnitt = 0;
+		double durchschnitt = 0;
 
 		if (ersterDurchlauf) {
 			printf("Hallo. Hier kannst du deine Noten für alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
@@ -110,7 +110,7 @@ int main(void) {
 		else{
 			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du als Nächstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4); 
 		}
-
+		// Ausfürhung Programmteil 1 zum Einlesen der Noten 
 		if (aktuellerProgrammteil == 1) einlesenDerNote(moduleGesamt, anzahlModule);
 		else if (aktuellerProgrammteil == 2) {
 			durchschnitt = durchSchnittBerechnen(moduleGesamt, anzahlModule, durchschnitt);
@@ -195,9 +195,9 @@ void einlesenDerNote(tModul* moduleGesamt, int anzahlModule) {
 	}
 }
 
-int durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, float durchschnitt) {
-	float summeallerNoten = 0;
-	float gewichtungsfaktorsumme = 0;
+double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {
+	double summeallerNoten = 0;
+	double gewichtungsfaktorsumme = 0;
 
 	for (int k = 0; k < anzahlModule; k++) {
 		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor;
@@ -225,7 +225,7 @@ int durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, float durchsch
 	return durchschnitt; 
 }
 
-int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, float durchschnitt) {
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {
 	FILE* fp = fopen("noten.csv", "w");
 	if (fp == NULL) {
 		printf("Das klappt nicht");
