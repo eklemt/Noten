@@ -11,7 +11,6 @@ Version:			1
 ***/
 
 #define _CRT_SECURE_NO_WARNINGS
-//#define ausgabe_berechnung
 
 #include <stdio.h>
 #include <string.h>
@@ -34,13 +33,11 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 
 
 int main(void) {
-
 	//open CSV
-	printf("\n");
 
 	char buffer[1000]; 
 	char* data; 
-	int anzahlModule = 36; 
+	int anzahlModule = 35; 
 
 	/**DATEI**/
 	FILE* moduleCSV = fopen("module.csv", "r");
@@ -50,9 +47,6 @@ int main(void) {
 	}
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
-
-	// Speicher reservieren
-	//tModul modul[36]; // Zeiger für reservierten Speicher 
 
 	tModul* moduleGesamt = (tModul*)malloc(anzahlModule * sizeof(tModul));
   
@@ -95,18 +89,52 @@ int main(void) {
 	printf("Ausgabe gespeicherte Module:\n");
 
 	for (int i = 0; i < anzahlModule; i++) {
-		printf("%s, %s %i %i", moduleGesamt[i].modulname, moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note); 
+		printf("%s, %s %d %d", moduleGesamt[i].modulname, moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note); 
 		printf("\n");
+
 	}
 
+	printf("\n");
 	// Einlesen aller Noten
 
-	int aktuelleNote; 
-	for (int i = 0; i < anzahlModule; i++) {
-		printf("%s", moduleGesamt[i].modulname);
-		aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 0, 15); 
-		moduleGesamt[i].note = aktuelleNote; 
+	for (int j = 0; j < anzahlModule; j++) {
+		printf("%s\t", moduleGesamt[j].modulname);
+
+
+		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15); 
+
+
+		moduleGesamt[j].note = aktuelleNote; 
+
 		printf("\n");
+	}
+	// Durchschnitt ausrechnen und Ausgabe des DUrchsnitts 
+	int summeallerNoten = 0; 
+	int durchschnitt = 0; 
+	int gewichtungsfaktorsumme = 0; 
+
+	for (int k = 0; k < anzahlModule; k++) {
+		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor; 
+		gewichtungsfaktorsumme += moduleGesamt[k].faktor; 
+
+	}
+	durchschnitt = summeallerNoten / gewichtungsfaktorsumme; 
+	printf("Dein Durchschnitt ist: %d", durchschnitt); 
+
+	if (i == 15 || i == 14 || i == 13) {
+		printf("Dein Durchschnitt ist %d, in Worten: sehr gut", durchschnitt); 
+	}
+	else if (i == 12 || i == 11 || i == 10) {
+		printf("Dein Durchschnitt ist %d, in Worten: gut", durchschnitt);
+	}
+	else if (i == 9 || i == 8 || i == 7) {
+		printf("Dein Durchschnitt ist %d, in Worten: befriedigend", durchschnitt);
+	}
+	else if (i == 6 ) {
+		printf("Dein Durchschnitt ist %d, in Worten: ausreichend", durchschnitt);
+	}
+	else {
+		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch"); 
 	}
 
 	free(moduleGesamt); 
@@ -136,7 +164,7 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 		// Überprüfen, ob die Zahl den Anforderungen entspricht
 		if (Rückgabewert != 2) printf("Das war keine korrekte Zahl!\n");
 		else if (ch != '\n') printf("Unerwartete Zeichen hinter der Zahl!\n");
-		else if (eingelesenerWert < min || eingelesenerWert > max) printf("Zahl muss zwischen 1 und %d liegen.\n", max);
+		else if (eingelesenerWert < min || eingelesenerWert > max) printf("Zahl muss zwischen %d und %d liegen. Anders kannst du keine Klausur an deiner Hochschule bestehen\n", min, max);
 		else fertig = true;
 		// Input stream leeren 
 		while (ch != '\n') {
