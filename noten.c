@@ -1,9 +1,8 @@
 /***
 
 Name:			Noten-Durchschnitt ermitteln
-Beschreibung:	Programm, in welchem mittlere kWh aus Solarstrahlung für verschiedene Standorte berechnet wird. Je nach Makro-Definition werden entweder Berechnungen
-				zu Mittelwerten ausgegeben, oder es findet eine Benutzerabfrage statt, wo der User Werte über seine PV-Anlage angeben und sich die berechneten
-				PV-Erträge in eine .txt-Datei abgespeichert werden.
+Beschreibung:	Programm, in welchem Daten für Module eines Studiengang aus einer CSV-Datei eingelesen werden. Anschließend kann der Nutzer aus mehreren Handlungsoptionen wählen. 
+				Er kann Noten für die Module eingeben, seinen Durchschnitt ausgeben lassen, die Module mit Noten sich anzeigen lassen oder die Ergebnisse speichern. 
 Autorinnen:	    Emily Klemt, Carolin Altstaedt
 Datum:		    17.01.2024
 Version:		1
@@ -19,76 +18,69 @@ Version:		1
 #include <time.h>
 
 
-typedef struct REEModule{
+typedef struct REEModule{ // Struktur, die alle Paramter zur Beschreibung eines Moduls beinhaltet 
 	char* modulname;
 	char* kurzform;
 	double faktor;
 	double note;
 } tModul;
 
-short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
-	char text[],
-	short min,
-	short max); 
-
-void einlesenDerNote(tModul* moduleGesamt, int anzahlModule);
-double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
-int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
-void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt);
+short einlesenEinerZahl( char text[], short min, short max); // Funktion um eine Ganzzahl einzulesen, die aus einem bestimmten Zahlenbereich kommt 
+void einlesenDerNoten(tModul* moduleGesamt, int anzahlModule); // Funktion um für alle Module nacheinander eine Note einzugeben 
+double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt); // Funktion, um die Abschlussnote zu berechnen und auszugeben
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt); // Funktion, um die Ergebnisse in eine CSV-Datei zu speichern
+void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt); // Funktion, um sich alle Module mit Noten in einer tabellenähnlichen Form ausgeben zu lassen
 
 int main(void) {
-	//open CSV
 
-	char buffer[1000];
-	char* data; 
+	char einleseSpeicher[1000];
+	char* daten; 
 	int anzahlModule = 1; 
 
 
-	/**DATEI**/
-	FILE* moduleCSV = fopen("module.csv", "r");
-	if (moduleCSV == NULL) {// Fehler?
+	// Daten aus CSV Datei einlesen 
+	FILE* moduleCSV = fopen("module.csv", "r"); 
+	if (moduleCSV == NULL) {// abfangen, falls die Datei nicht gefunden werden kann 
 		printf("Fehler: Datei nicht gefunden");
 		return 1;
 	}
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
 
-	tModul* moduleGesamt = (tModul*)malloc(anzahlModule * sizeof(tModul));
-	tModul* modulBackUp; 
+	tModul* moduleGesamt = (tModul*)malloc(anzahlModule * sizeof(tModul)); //Zeiger auf den reservierten Speicherblock & initiale Reservierung des Speichers 
+	tModul* moduleSicherungszeiger; // Zeiger für den Fall, dass es Probleme mit realloc gibt. 
   
-	fgets(buffer, sizeof(buffer), moduleCSV); 
-	printf("%s\n", buffer); 
 
-	// Ausgabe der csv-Datei und abspeichwern in reservieertem SPeicher
-	int i = 0;
-	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
+	// Abspeichern der Werte aus der CSV-Datei im reservierten Speicher und dynamische Speicherallokation je nach Programmgröße
+	int i = 0; // Indexvariable 
+	while (fgets(einleseSpeicher, sizeof(einleseSpeicher), moduleCSV)) {
 
-		// Speicher für chat-Werte von struct allokieren
+		// Speicher für char-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
 
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
 
 
-
-		modulBackUp = moduleGesamt; 
+		moduleSicherungszeiger = moduleGesamt; 
 		moduleGesamt = (tModul*)realloc(moduleGesamt, ++anzahlModule * sizeof(tModul));
 		if (NULL == moduleGesamt) {
-			printf("Fehler bei malloc\n");
+			printf("Fehler bei realloc\n");
+			moduleGesamt = moduleSicherungszeiger; 
 			return -1;
 		}
 
-		data = strtok(buffer, ";");
-		strcpy(moduleGesamt[i].modulname, data);
+		daten = strtok(einleseSpeicher, ";");
+		strcpy(moduleGesamt[i].modulname, daten);
 
-		data = strtok(NULL, ";");
-		strcpy(moduleGesamt[i].kurzform, data);
+		daten = strtok(NULL, ";");
+		strcpy(moduleGesamt[i].kurzform, daten);
 
 	
-		data = strtok(NULL, ";");
-		moduleGesamt[i].faktor = atof(data);
+		daten = strtok(NULL, ";");
+		moduleGesamt[i].faktor = atof(daten);
 
-		data = strtok(NULL, ";");
-		moduleGesamt[i].note = atof(data);
+		daten = strtok(NULL, ";");
+		moduleGesamt[i].note = atof(daten);
 
 		i++; 
 	}
@@ -98,39 +90,43 @@ int main(void) {
 
 	int aktuellerProgrammteil = 0; 
 
+	// Abfrage des Nutzers, welchen Programmteil er ausführen möchte, die solange läuft, bis der Nutzer das Programm mit x beendet 
 	bool ersterDurchlauf = true; 
 	bool programmLaeuft = true; 
 	while (programmLaeuft) {
 		double durchschnitt = 0;
 
 		if (ersterDurchlauf) {
-			printf("Hallo. Hier kannst du deine Noten für alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
-			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4);
+			printf("Hallo. Hier kannst du deine Noten fuer alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen, sowie die Ergebnisse dir ausgeben lassen oder in eine Datei speichern.\n");
+			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4);
 		}
 		else{
-			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du als Nächstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4); 
+			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du als Naechstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4); 
 		}
 		// Ausführung Programmteil 1 zum Einlesen der Noten 
-		if (aktuellerProgrammteil == 1) einlesenDerNote(moduleGesamt, anzahlModule);
+		if (aktuellerProgrammteil == 1) einlesenDerNoten(moduleGesamt, anzahlModule);
+		// Ausführung Programmteil 2 zum Durchschnitt berechenen 
 		else if (aktuellerProgrammteil == 2) {
 			durchschnitt = durchSchnittBerechnen(moduleGesamt, anzahlModule, durchschnitt);
 		}
+		// Ausführung Programmteil 3 zum Ausgeben der gespeicherten Daten
 		else if (aktuellerProgrammteil == 3) tabelleAusgabe(anzahlModule, moduleGesamt);
-
+		// Ausführung Programmteil 4 zum Abspeichern der Ergebnisse 
 		else if (aktuellerProgrammteil == 4) ErgebnisseSpeichern(moduleGesamt, anzahlModule, durchschnitt);
 
-		//Beenden des Spiels 
-		printf("Wenn du weitere Einträge machen willst, drücke enter. Wenn nicht, dann drücke 'x' und enter."); 
+		//Beenden der Applikation 
+		printf("Wenn du weitere Eintraege machen willst, druecke enter. Wenn nicht, dann druecke 'x' und enter."); 
 		if (getchar() == 'x') {
 			programmLaeuft = false;
 			printf("Danke, dass du das Programm genutzt hast.");
 			return 0;
+			free(moduleGesamt);
 		}
 		else {
 			system("cls");
 		}
 	}
-	free(moduleGesamt); 
+	free(moduleGesamt);  // Speicher freigeben
 	return 0;
 }
 
@@ -168,33 +164,32 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	return eingelesenerWert;
 }
 
-// Einlesen aller Noten
-void einlesenDerNote(tModul* moduleGesamt, int anzahlModule) {
+void einlesenDerNoten(tModul* moduleGesamt, int anzahlModule) { // Funktion um für alle Module nacheinander eine Note einzugeben 
+
 	for (int j = 0; j < anzahlModule; j++) {
-		printf("%s\t", moduleGesamt[j].modulname);
+		printf("%s\t", moduleGesamt[j].modulname); // Ausgabe des Modulnamens
+
+		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15); // Einlesen einer Note 
 
 
-		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15);
-
-
-		moduleGesamt[j].note = aktuelleNote;
+		moduleGesamt[j].note = aktuelleNote; // Note zum passenden Modul eintragen 
 
 		printf("\n");
 	}
 }
 
-double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {
+double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt) { // Funktion, um die Abschlussnote zu berechnen und auszugeben
 	double summeallerNoten = 0;
 	double gewichtungsfaktorsumme = 0;
 
-	for (int k = 0; k < anzahlModule; k++) {
+	for (int k = 0; k < anzahlModule; k++) { // Berechnung entsprechend der Formel
 		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor;
 		gewichtungsfaktorsumme += moduleGesamt[k].faktor;
 
 	}
 	durchschnitt = summeallerNoten / gewichtungsfaktorsumme;
-	printf("Dein Durchschnitt ist: %.2f\n", durchschnitt);
 
+	// Ausgabe des Durchschnitts in Worten und als Zahl 
 	if (durchschnitt > 12.5 ) {
 		printf("Dein Durchschnitt ist %.2f, in Worten: sehr gut\n", durchschnitt);
 	}
@@ -214,27 +209,26 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 	return durchschnitt; 
 }
 
-int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {
+int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {  // Funktion, um die Ergebnisse in eine CSV-Datei zu speichern
 	FILE* fp = fopen("noten.csv", "w");
 	if (fp == NULL) {
-		printf("Das klappt nicht");
+		printf("Das klappt nicht. Vielleicht gibt es die Datei nicht?");
 		return -1; 
 	}
 
-	for (int l = 0; l < anzahlModule; l++) {
+	for (int l = 0; l < anzahlModule; l++) { // Ergebnisse pro Zeile einspeichern 
 		fprintf(fp, "%s;", moduleGesamt[l].modulname);
 		fprintf(fp, "%s;", moduleGesamt[l].kurzform);
 		fprintf(fp, "%.2f;", moduleGesamt[l].faktor);
 		fprintf(fp, "%.2f;\n", moduleGesamt[l].note);
 
 	}
-	fprintf(fp, "Dein Notendurchschnitt: %2.f", durchschnitt); 
+	fprintf(fp, "Dein Notendurchschnitt: %2.f", durchschnitt); // Einspeichern des Notendurchschnitts 
 	fclose(fp);
 	return 0;
 }
 
-// Ausgabe aller Module
-void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt) { // Funktion, die das aktuelle Spielfeld ausgibt
+void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt) { // Funktion, um sich alle Module mit Noten in einer tabellenähnlichen Form ausgeben zu lassen
 	printf("\n");
 	for (int i = 0; i < anzahlModule; i++) {
 		printf("%s\n", moduleGesamt[i].modulname);
