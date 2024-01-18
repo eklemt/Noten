@@ -1,9 +1,9 @@
 /***
 
 Name:			Noten-Durchschnitt ermitteln
-Beschreibung:	Programm, in welchem mittlere kWh aus Solarstrahlung für verschiedene Standorte berechnet wird. Je nach Makro-Definition werden entweder Berechnungen
-				zu Mittelwerten ausgegeben, oder es findet eine Benutzerabfrage statt, wo der User Werte über seine PV-Anlage angeben und sich die berechneten
-				PV-Erträge in eine .txt-Datei abgespeichert werden.
+Beschreibung:	Programm, in welchem mittlere kWh aus Solarstrahlung fÃ¼r verschiedene Standorte berechnet wird. Je nach Makro-Definition werden entweder Berechnungen
+				zu Mittelwerten ausgegeben, oder es findet eine Benutzerabfrage statt, wo der User Werte Ã¼ber seine PV-Anlage angeben und sich die berechneten
+				PV-ErtrÃ¤ge in eine .txt-Datei abgespeichert werden.
 Autorinnen:	    Emily Klemt, Carolin Altstaedt
 Datum:		    17.01.2024
 Version:		1
@@ -31,10 +31,10 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 	short min,
 	short max); 
 
-void ausgabeAllerModule(tModul* moduleGesamt, int anzahlModule); 
 void einlesenDerNote(tModul* moduleGesamt, int anzahlModule);
 double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
 int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt); 
+void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt);
 
 int main(void) {
 	//open CSV
@@ -63,7 +63,7 @@ int main(void) {
 	int i = 0;
 	while (fgets(buffer, sizeof(buffer), moduleCSV)) {
 
-		// Speicher für chat-Werte von struct allokieren
+		// Speicher fÃ¼r chat-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
 
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
@@ -104,23 +104,23 @@ int main(void) {
 		double durchschnitt = 0;
 
 		if (ersterDurchlauf) {
-			printf("Hallo. Hier kannst du deine Noten für alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
-			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4);
+			printf("Hallo. Hier kannst du deine Noten fÃ¼r alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen.\n");
+			aktuellerProgrammteil = einlesenEinerZahl("Was mÃ¶chtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und EintrÃ¤ge anzeigen, 4= in Datei speichern)\n", 1, 4);
 		}
 		else{
-			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du als Nächstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4); 
+			aktuellerProgrammteil = einlesenEinerZahl("Was mÃ¶chtest du als NÃ¤chstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und EintrÃ¤ge anzeigen, 4= in Datei speichern)\n", 1, 4); 
 		}
-		// Ausführung Programmteil 1 zum Einlesen der Noten 
+		// AusfÃ¼hrung Programmteil 1 zum Einlesen der Noten 
 		if (aktuellerProgrammteil == 1) einlesenDerNote(moduleGesamt, anzahlModule);
 		else if (aktuellerProgrammteil == 2) {
 			durchschnitt = durchSchnittBerechnen(moduleGesamt, anzahlModule, durchschnitt);
 		}
-		else if (aktuellerProgrammteil == 3) ausgabeAllerModule(moduleGesamt, anzahlModule);
+		else if (aktuellerProgrammteil == 3) tabelleAusgabe(anzahlModule, moduleGesamt);
 
 		else if (aktuellerProgrammteil == 4) ErgebnisseSpeichern(moduleGesamt, anzahlModule, durchschnitt);
 
 		//Beenden des Spiels 
-		printf("Wenn du weitere Einträge machen willst, drücke enter. Wenn nicht, dann drücke 'x' und enter."); 
+		printf("Wenn du weitere EintrÃ¤ge machen willst, drÃ¼cke enter. Wenn nicht, dann drÃ¼cke 'x' und enter."); 
 		if (getchar() == 'x') {
 			programmLaeuft = false;
 			printf("Danke, dass du das Programm genutzt hast.");
@@ -143,17 +143,17 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 {
 	short eingelesenerWert;		// eingegebene Zahl des Benutzers
 	bool fertig = false;			// Variable, die anzeigt, ob die Eingabe den Anforderungen einer Lottozahl entspricht
-	char ch;						// möglicher Buchstabe nach der eingegebenen Zahl
-	int Rückgabewert;			// Rückgabewert von scanf
+	char ch;						// mÃ¶glicher Buchstabe nach der eingegebenen Zahl
+	int RÃ¼ckgabewert;			// RÃ¼ckgabewert von scanf
 
 	do {
 		//Einlesen der Zahl 
 		printf("%s: ", text);
 		ch = '\0';
-		Rückgabewert = scanf("%hd%c", &eingelesenerWert, &ch);
+		RÃ¼ckgabewert = scanf("%hd%c", &eingelesenerWert, &ch);
 
-		// Überprüfen, ob die Zahl den Anforderungen entspricht
-		if (Rückgabewert != 2) printf("Das war keine korrekte Zahl!\n");
+		// ÃœberprÃ¼fen, ob die Zahl den Anforderungen entspricht
+		if (RÃ¼ckgabewert != 2) printf("Das war keine korrekte Zahl!\n");
 		else if (ch != '\n') printf("Unerwartete Zeichen hinter der Zahl!\n");
 		else if (eingelesenerWert < min || eingelesenerWert > max) printf("Zahl muss zwischen %d und %d liegen. Anders kannst du keine Klausur an deiner Hochschule bestehen\n", min, max);
 		else fertig = true;
@@ -164,20 +164,8 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 		// wiederholen, wenn es nicht beendet ist 
 	} while (!fertig);
 
-	// Rückgabe der eingelesenen Zahl 
+	// RÃ¼ckgabe der eingelesenen Zahl 
 	return eingelesenerWert;
-}
-
-
-// Ausgabe aller Module 
-void ausgabeAllerModule (tModul* moduleGesamt, int anzahlModule){
-printf("\n");
-printf("Ausgabe gespeicherte Module:\n");
-
-	for (int u = 0; u < anzahlModule; u++) {
-		printf("%s, %s %.2f %.2f", moduleGesamt[u].modulname, moduleGesamt[u].kurzform, moduleGesamt[u].faktor, moduleGesamt[u].note);
-		printf("\n");
-	}
 }
 
 // Einlesen aller Noten
@@ -243,6 +231,18 @@ int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschn
 	fprintf(fp, "Dein Notendurchschnitt: %2.f", durchschnitt); 
 	fclose(fp);
 	return 0;
+}
+
+// Ausgabe aller Module
+void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt) { // Funktion, die das aktuelle Spielfeld ausgibt
+	printf("\n");
+	for (int i = 0; i < anzahlModule; i++) {
+		printf("%s\n", moduleGesamt[i].modulname);
+		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205); // macht folgende Ausgabe mit ASCII-Zeichen: â•â•â•â•â•â•â•â•â•
+		printf("%s\t%.2f\t%.2f\n", moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note);
+		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205); // macht folgende Ausgabe mit ASCII-Zeichen: â•â•â•â•â•â•â•â•â•
+		printf("\n");
+	}
 }
 
 
