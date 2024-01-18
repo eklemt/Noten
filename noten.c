@@ -63,16 +63,22 @@ int main(void) {
 			return -1;
 		}
 
-		// Speicher für char-Werte von struct allokieren
-		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
-
-		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
+		// Speicher für char-Werte von struct allokieren 
+		int noetigeSpeichergroesse = 0; // Größe für Speicherreservierung der character
 
 		daten = strtok(einleseSpeicher, ";");
-		strcpy(moduleGesamt[i].modulname, daten);
+		noetigeSpeichergroesse = ((int)strlen(daten)) + 1;
+		moduleGesamt[i].modulname = (char*)malloc(noetigeSpeichergroesse * sizeof(char));
+		if (moduleGesamt[i].modulname != NULL) {
+			strcpy(moduleGesamt[i].modulname, daten);
+		}
 
 		daten = strtok(NULL, ";");
-		strcpy(moduleGesamt[i].kurzform, daten);
+		noetigeSpeichergroesse = ((int)strlen(daten)) + 1;
+		moduleGesamt[i].kurzform = (char*)malloc(noetigeSpeichergroesse * sizeof(char));
+		if (moduleGesamt[i].kurzform != NULL) {
+			strcpy(moduleGesamt[i].kurzform, daten);
+		}
 
 	
 		daten = strtok(NULL, ";");
