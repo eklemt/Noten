@@ -35,7 +35,7 @@ int main(void) {
 
 	char einleseSpeicher[1000];
 	char* daten; 
-	int anzahlModule = 1; 
+	int anzahlModule = 0; 
 
 
 	// Daten aus CSV Datei einlesen 
@@ -47,7 +47,7 @@ int main(void) {
 	printf("Erfolg: Datei gefunden");
 	printf("\n");
 
-	tModul* moduleGesamt = (tModul*)malloc(anzahlModule * sizeof(tModul)); //Zeiger auf den reservierten Speicherblock & initiale Reservierung des Speichers 
+	tModul* moduleGesamt = NULL; //Zeiger auf den reservierten Speicherblock & initiale Reservierung des Speichers 
 	tModul* moduleSicherungszeiger; // Zeiger für den Fall, dass es Probleme mit realloc gibt. 
   
 
@@ -55,19 +55,18 @@ int main(void) {
 	int i = 0; // Indexvariable 
 	while (fgets(einleseSpeicher, sizeof(einleseSpeicher), moduleCSV)) {
 
+		moduleSicherungszeiger = moduleGesamt;
+		moduleGesamt = (tModul*)realloc(moduleGesamt, ++anzahlModule * sizeof(tModul)); // Speicher anlegen mithilfe von realloc 
+		if (NULL == moduleGesamt) {
+			printf("Fehler bei realloc\n");
+			moduleGesamt = moduleSicherungszeiger;
+			return -1;
+		}
+
 		// Speicher für char-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
 
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
-
-
-		moduleSicherungszeiger = moduleGesamt; 
-		moduleGesamt = (tModul*)realloc(moduleGesamt, ++anzahlModule * sizeof(tModul));
-		if (NULL == moduleGesamt) {
-			printf("Fehler bei realloc\n");
-			moduleGesamt = moduleSicherungszeiger; 
-			return -1;
-		}
 
 		daten = strtok(einleseSpeicher, ";");
 		strcpy(moduleGesamt[i].modulname, daten);
@@ -86,7 +85,6 @@ int main(void) {
 	}
 
 	fclose(moduleCSV); 
-	anzahlModule = anzahlModule - 1;
 
 	int aktuellerProgrammteil = 0; 
 
@@ -165,8 +163,7 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 }
 
 void einlesenDerNoten(tModul* moduleGesamt, int anzahlModule) { // Funktion um für alle Module nacheinander eine Note einzugeben 
-
-	for (int j = 0; j < anzahlModule; j++) {
+	for (int j = 1; j < anzahlModule; j++) {
 		printf("%s\t", moduleGesamt[j].modulname); // Ausgabe des Modulnamens
 
 		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15); // Einlesen einer Note 
@@ -182,7 +179,7 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 	double summeallerNoten = 0;
 	double gewichtungsfaktorsumme = 0;
 
-	for (int k = 0; k < anzahlModule; k++) { // Berechnung entsprechend der Formel
+	for (int k = 1; k < anzahlModule; k++) { // Berechnung entsprechend der Formel
 		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor;
 		gewichtungsfaktorsumme += moduleGesamt[k].faktor;
 
