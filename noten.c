@@ -221,7 +221,7 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 	}
 	else {
 		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch.\n");
-		printf("Zudem kann ein sinnvoller Durchschnitt erst berechnet werden, wenn du Noten eingegeben hast.\n")
+		printf("Zudem kann ein sinnvoller Durchschnitt erst berechnet werden, wenn du Noten eingegeben hast.\n"); 
 	}
 	return durchschnitt; 
 }
