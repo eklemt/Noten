@@ -65,9 +65,9 @@ int main(void) {
 
 		// Speicher für chat-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
-		moduleGesamt[i].modulname = "text"; 
+
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
-		moduleGesamt[i].kurzform = "text";
+
 
 
 		modulBackUp = moduleGesamt; 
@@ -110,7 +110,7 @@ int main(void) {
 		else{
 			aktuellerProgrammteil = einlesenEinerZahl("Was möchtest du als Nächstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Einträge anzeigen, 4= in Datei speichern)\n", 1, 4); 
 		}
-		// Ausfürhung Programmteil 1 zum Einlesen der Noten 
+		// Ausführung Programmteil 1 zum Einlesen der Noten 
 		if (aktuellerProgrammteil == 1) einlesenDerNote(moduleGesamt, anzahlModule);
 		else if (aktuellerProgrammteil == 2) {
 			durchschnitt = durchSchnittBerechnen(moduleGesamt, anzahlModule, durchschnitt);
@@ -220,7 +220,8 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 		printf("Dein Durchschnitt ist %.2f, in Worten: ausreichend\n", durchschnitt);
 	}
 	else {
-		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch\n");
+		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch.\n");
+		printf("Zudem kann ein sinnvoller Durchschnitt erst berechnet werden, wenn du Noten eingegeben hast.\n")
 	}
 	return durchschnitt; 
 }
