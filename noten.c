@@ -65,9 +65,7 @@ int main(void) {
 
 		// Speicher für chat-Werte von struct allokieren
 		moduleGesamt[i].modulname = (char*)malloc(100 * sizeof(char));
-		moduleGesamt[i].modulname = "text"; 
 		moduleGesamt[i].kurzform = (char*)malloc(10 * sizeof(char));
-		moduleGesamt[i].kurzform = "text";
 
 
 		modulBackUp = moduleGesamt; 
