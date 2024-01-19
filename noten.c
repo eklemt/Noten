@@ -33,6 +33,8 @@ void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt); // Funktion, um sic
 
 int main(void) {
 
+	printf("Programm fuer die Berechnung des Notendurchschnitts fuer den Studiengang Regenerative Energien.\n"); 
+
 	char einleseSpeicher[1000];
 	char* daten; 
 	int anzahlModule = 0; 
@@ -50,6 +52,7 @@ int main(void) {
 	tModul* moduleGesamt = NULL; //Zeiger auf den reservierten Speicherblock & initiale Reservierung des Speichers 
 	tModul* moduleSicherungszeiger; // Zeiger für den Fall, dass es Probleme mit realloc gibt. 
   
+	fgets(einleseSpeicher, sizeof(einleseSpeicher), moduleCSV);
 
 	// Abspeichern der Werte aus der CSV-Datei im reservierten Speicher und dynamische Speicherallokation je nach Programmgröße
 	int i = 0; // Indexvariable 
@@ -68,18 +71,29 @@ int main(void) {
 
 		daten = strtok(einleseSpeicher, ";");
 		noetigeSpeichergroesse = ((int)strlen(daten)) + 1;
+
 		moduleGesamt[i].modulname = (char*)malloc(noetigeSpeichergroesse * sizeof(char));
 		if (moduleGesamt[i].modulname != NULL) {
 			strcpy(moduleGesamt[i].modulname, daten);
 		}
+		else {
+			printf("Problem beim Einlesen"); 
+			return 1; 
+		}
+
 
 		daten = strtok(NULL, ";");
-		noetigeSpeichergroesse = ((int)strlen(daten)) + 1;
+		noetigeSpeichergroesse = ((int)strlen(daten))+1;
+
 		moduleGesamt[i].kurzform = (char*)malloc(noetigeSpeichergroesse * sizeof(char));
 		if (moduleGesamt[i].kurzform != NULL) {
 			strcpy(moduleGesamt[i].kurzform, daten);
 		}
-
+		else {
+			printf("Problem beim Einlesen");
+			return 1;
+		}
+		
 	
 		daten = strtok(NULL, ";");
 		moduleGesamt[i].faktor = atof(daten);
@@ -102,10 +116,11 @@ int main(void) {
 
 		if (ersterDurchlauf) {
 			printf("Hallo. Hier kannst du deine Noten fuer alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen, sowie die Ergebnisse dir ausgeben lassen oder in eine Datei speichern.\n");
-			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4);
+			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du tun?\n(1 = Eintragen der Noten, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4);
+			ersterDurchlauf = false; 
 		}
 		else{
-			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du als Naechstes tun?\n(1 = Eintragen, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4); 
+			aktuellerProgrammteil = einlesenEinerZahl("Was moechtest du als Naechstes tun?\n(1 = Eintragen der Note, 2 = Durchschnitt berechnen, 3 = Module und Eintraege anzeigen, 4= in Datei speichern)\n", 1, 4); 
 		}
 		// Ausführung Programmteil 1 zum Einlesen der Noten 
 		if (aktuellerProgrammteil == 1) einlesenDerNoten(moduleGesamt, anzahlModule);
@@ -119,7 +134,7 @@ int main(void) {
 		else if (aktuellerProgrammteil == 4) ErgebnisseSpeichern(moduleGesamt, anzahlModule, durchschnitt);
 
 		//Beenden der Applikation 
-		printf("Wenn du weitere Eintraege machen willst, druecke enter. Wenn nicht, dann druecke 'x' und enter."); 
+		printf("Wenn du weitere Programmteile ausführen willst, druecke enter. Wenn nicht, dann druecke 'x' und enter."); 
 		if (getchar() == 'x') {
 			programmLaeuft = false;
 			printf("Danke, dass du das Programm genutzt hast.");
@@ -129,6 +144,11 @@ int main(void) {
 		else {
 			system("cls");
 		}
+	}
+
+	for (int i = 0; i < anzahlModule; i++) {
+		free(moduleGesamt[i].modulname);
+		free(moduleGesamt[i].kurzform);
 	}
 	free(moduleGesamt);  // Speicher freigeben
 	return 0;
@@ -169,15 +189,14 @@ short einlesenEinerZahl( // Funktion, um eine Benutzereingabe einzulesen
 }
 
 void einlesenDerNoten(tModul* moduleGesamt, int anzahlModule) { // Funktion um für alle Module nacheinander eine Note einzugeben 
-	for (int j = 1; j < anzahlModule; j++) {
+	for (int j = 0; j < anzahlModule; j++) {
 		printf("%s\t", moduleGesamt[j].modulname); // Ausgabe des Modulnamens
 
-		int aktuelleNote = einlesenEinerZahl("Gib nun deine Note ein:", 6, 15); // Einlesen einer Note 
+		if (moduleGesamt[j].faktor != 0) {
+			int aktuelleNote = einlesenEinerZahl("Note", 5, 15); // Einlesen einer Note 
+			moduleGesamt[j].note = aktuelleNote; // Note zum passenden Modul eintragen 
+		}
 
-
-		moduleGesamt[j].note = aktuelleNote; // Note zum passenden Modul eintragen 
-
-		printf("\n");
 	}
 }
 
@@ -194,52 +213,52 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 	printf("Summe der erreichten Punkte: %.2f\n", summeallerNoten);
 
 	// Ausgabe des Durchschnitts in Worten und als Zahl 
-	if (durchschnitt > 12.5 ) {
-		printf("Dein Durchschnitt ist %.3f, in Worten: sehr gut\n", durchschnitt);
+	if (summeallerNoten >= 4930 ) {
+		printf("Dein Durchschnitt ist %.3f, in Worten: sehr gut mit Auszeichnung\n", durchschnitt);
 	}
-	else if (durchschnitt < 12.5 && durchschnitt >= 9.5) {
+	else if (summeallerNoten < 4930 && summeallerNoten >= 4250) {
+		printf("Dein Durchschnitt ist %.3f, in Worten:  sehr gut\n", durchschnitt);
+	}
+	else if (summeallerNoten < 4250 && summeallerNoten >= 3230) {
 		printf("Dein Durchschnitt ist %.3f, in Worten: gut\n", durchschnitt);
 	}
-	else if (durchschnitt < 9.5 && durchschnitt >= 6.5) {
+	else if (summeallerNoten < 3230 && summeallerNoten >= 2210) {
 		printf("Dein Durchschnitt ist %.3f, in Worten: befriedigend\n", durchschnitt);
 	}
-	else if (durchschnitt < 6.5 && durchschnitt >= 6.0) {
-		printf("Dein Durchschnitt ist %.3f, in Worten: ausreichend\n", durchschnitt);
+	else if (summeallerNoten < 2210 && summeallerNoten >= 1700) {
+		printf("Dein Durchschnitt ist %.3f, in Worten: bestanden\n", durchschnitt);
 	}
 	else {
 		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch.\n");
 		printf("Zudem kann ein sinnvoller Durchschnitt erst berechnet werden, wenn du Noten eingegeben hast.\n"); 
 	}
-	return durchschnitt; 
+	return summeallerNoten; 
 }
 
 int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschnitt) {  // Funktion, um die Ergebnisse in eine CSV-Datei zu speichern
-	FILE* fp = fopen("noten.csv", "w");
+	FILE* fp = fopen("module.csv", "w");
 	if (fp == NULL) {
 		printf("Das klappt nicht. Vielleicht gibt es die Datei nicht?");
 		return -1; 
 	}
 
+	fprintf(fp, "Modulname; Kuerzel; Faktor; Note\n");
 	for (int l = 0; l < anzahlModule; l++) { // Ergebnisse pro Zeile einspeichern 
 		fprintf(fp, "%s;", moduleGesamt[l].modulname);
 		fprintf(fp, "%s;", moduleGesamt[l].kurzform);
 		fprintf(fp, "%.2f;", moduleGesamt[l].faktor);
-		fprintf(fp, "%.2f;\n", moduleGesamt[l].note);
-
+		fprintf(fp, "%.2f\n", moduleGesamt[l].note);
 	}
-	fprintf(fp, "Dein Notendurchschnitt: %.2f", durchschnitt); // Einspeichern des Notendurchschnitts 
+	//fprintf(fp, "Dein Notendurchschnitt: %.2f", durchschnitt); // Einspeichern des Notendurchschnitts 
 	fclose(fp);
 	return 0;
 }
 
 void tabelleAusgabe(int anzahlModule, tModul* moduleGesamt) { // Funktion, um sich alle Module mit Noten in einer tabellenähnlichen Form ausgeben zu lassen
 	printf("\n");
+	printf("Modulname ,  Kürzel , Gewichtungsfaktor , Note\n");
 	for (int i = 0; i < anzahlModule; i++) {
-		printf("%s\n", moduleGesamt[i].modulname);
-		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205); // macht folgende Ausgabe mit ASCII-Zeichen: ═════════
-		printf("%s\t%.2f\t%.2f\n", moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note);
-		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205); // macht folgende Ausgabe mit ASCII-Zeichen: ═════════
-		printf("\n");
+		printf("%s ,  %s ,  %.2f , %.2f\n", moduleGesamt[i].modulname, moduleGesamt[i].kurzform, moduleGesamt[i].faktor, moduleGesamt[i].note); 
 	}
 }
 
