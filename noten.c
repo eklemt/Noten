@@ -92,13 +92,13 @@ int main(void) {
 
 	fclose(moduleCSV); 
 
-	int aktuellerProgrammteil = 0; 
+	int aktuellerProgrammteil = 0; // Variable für den aktuellen Programmteil
+	double durchschnitt = 0; // Variable für den Notendurchschnitt
 
 	// Abfrage des Nutzers, welchen Programmteil er ausführen möchte, die solange läuft, bis der Nutzer das Programm mit x beendet 
 	bool ersterDurchlauf = true; 
 	bool programmLaeuft = true; 
 	while (programmLaeuft) {
-		double durchschnitt = 0;
 
 		if (ersterDurchlauf) {
 			printf("Hallo. Hier kannst du deine Noten fuer alle Module eintragen und dir deinen Notendurchschnitt anzeigen lassen, sowie die Ergebnisse dir ausgeben lassen oder in eine Datei speichern.\n");
@@ -188,22 +188,23 @@ double durchSchnittBerechnen(tModul* moduleGesamt, int anzahlModule, double durc
 	for (int k = 1; k < anzahlModule; k++) { // Berechnung entsprechend der Formel
 		summeallerNoten += moduleGesamt[k].note * moduleGesamt[k].faktor;
 		gewichtungsfaktorsumme += moduleGesamt[k].faktor;
-
 	}
 	durchschnitt = summeallerNoten / gewichtungsfaktorsumme;
 
+	printf("Summe der erreichten Punkte: %.2f\n", summeallerNoten);
+
 	// Ausgabe des Durchschnitts in Worten und als Zahl 
 	if (durchschnitt > 12.5 ) {
-		printf("Dein Durchschnitt ist %.2f, in Worten: sehr gut\n", durchschnitt);
+		printf("Dein Durchschnitt ist %.3f, in Worten: sehr gut\n", durchschnitt);
 	}
 	else if (durchschnitt < 12.5 && durchschnitt >= 9.5) {
-		printf("Dein Durchschnitt ist %.2f, in Worten: gut\n", durchschnitt);
+		printf("Dein Durchschnitt ist %.3f, in Worten: gut\n", durchschnitt);
 	}
 	else if (durchschnitt < 9.5 && durchschnitt >= 6.5) {
-		printf("Dein Durchschnitt ist %.2f, in Worten: befriedigend\n", durchschnitt);
+		printf("Dein Durchschnitt ist %.3f, in Worten: befriedigend\n", durchschnitt);
 	}
 	else if (durchschnitt < 6.5 && durchschnitt >= 6.0) {
-		printf("Dein Durchschnitt ist %.2f, in Worten: ausreichend\n", durchschnitt);
+		printf("Dein Durchschnitt ist %.3f, in Worten: ausreichend\n", durchschnitt);
 	}
 	else {
 		printf("Schlechter kannst du keine Klausur bestanden haben, deine eingegebenen Noten sind falsch.\n");
@@ -226,7 +227,7 @@ int ErgebnisseSpeichern(tModul* moduleGesamt, int anzahlModule, double durchschn
 		fprintf(fp, "%.2f;\n", moduleGesamt[l].note);
 
 	}
-	fprintf(fp, "Dein Notendurchschnitt: %2.f", durchschnitt); // Einspeichern des Notendurchschnitts 
+	fprintf(fp, "Dein Notendurchschnitt: %.2f", durchschnitt); // Einspeichern des Notendurchschnitts 
 	fclose(fp);
 	return 0;
 }
